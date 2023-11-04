@@ -64,8 +64,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-iid:21.1.0")
 
 
-    //noinspection GradleCompatible
-//    implementation ("com.android.support:support-compat:28.0.0")
+    implementation ("com.squareup.picasso:picasso:2.8")
 
 
 
