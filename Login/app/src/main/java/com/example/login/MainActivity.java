@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         // App code
+                        showFacebookLoginSuccessfulNotification();
                         startActivity(new Intent(MainActivity.this, fbact.class));
                         finish();
                     }
@@ -169,5 +170,29 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private void showFacebookLoginSuccessfulNotification() {
+        // Create a notification channel (for Android 8 and above)
+        createNotificationChannel();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.baseline_notifications_24) // Replace with your Facebook notification icon resource
+                .setContentTitle("Facebook Login Successful")
+                .setContentText("You have successfully logged in with Facebook");
+
+        // Create an Intent for the notification to launch the home activity
+        Intent resultIntent = new Intent(this, home.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Set the content intent for the notification
+        builder.setContentIntent(resultPendingIntent);
+
+        // Get an instance of the NotificationManager
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Notify using a unique ID to distinguish different notifications
+        int notificationId = 2; // Use a different ID to distinguish from Google login notification
+        notificationManager.notify(notificationId, builder.build());
     }
 }
