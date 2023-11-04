@@ -55,6 +55,19 @@ dependencies {
 
     implementation ("com.facebook.android:facebook-login:latest.release")
 
+    implementation ("com.google.firebase:firebase-messaging:23.3.1")
+
+    implementation ("com.google.firebase:firebase-messaging:23.3.1")
+
+//    implementation ("com.google.firebase:firebase-core:22.0.0")
+
+    implementation ("com.google.firebase:firebase-iid:21.1.0")
+
+
+    //noinspection GradleCompatible
+//    implementation ("com.android.support:support-compat:28.0.0")
+
+
 
 
 }
