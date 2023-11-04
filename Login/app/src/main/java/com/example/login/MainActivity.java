@@ -14,6 +14,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -21,23 +27,60 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String NOTIFICATION_CHANNEL_ID = "channel_id";
     GoogleSignInOptions gso;
     GoogleSignInClient gsc;
+    private GoogleSignInClient client;
     ImageView googlebtn;
     ImageView fbbtn;
-    private static final String NOTIFICATION_CHANNEL_ID = "channel_id";
+    CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Facebook SDK with the App ID
+        FacebookSdk.setClientToken(getString(R.string.facebook_client_token));
+        FacebookSdk.sdkInitialize(getApplicationContext());
+
+        callbackManager = CallbackManager.Factory.create();
+        LoginManager.getInstance().registerCallback(callbackManager,
+                new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        // App code
+                        startActivity(new Intent(MainActivity.this, fbact.class));
+                        finish();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        // App code
+                    }
+
+                    @Override
+                    public void onError(FacebookException exception) {
+                        // App code
+                    }
+                });
+
+        fbbtn = findViewById(R.id.fbbtn);
+        fbbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Login with read permissions
+                LoginManager.getInstance().logInWithReadPermissions(MainActivity.this, Arrays.asList("public_profile"));
+            }
+        });
+
         googlebtn = findViewById(R.id.googlebtn);
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        gsc = GoogleSignIn.getClient(this, gso);
+        gsc = GoogleSignIn.getClient(this,gso);
 
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
         if (acct != null) {
@@ -50,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 signIn();
             }
         });
+
     }
 
     void signIn() {
@@ -67,14 +111,17 @@ public class MainActivity extends AppCompatActivity {
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 if (account != null) {
-                    // Handle the successful login
+                    // Handle the successful Google Sign-In
                     showLoginSuccessfulNotification();
                     navigateToSecondActivity();
                 }
             } catch (ApiException e) {
-                Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Google Sign-In: Something went wrong", Toast.LENGTH_SHORT).show();
             }
         }
+
+        // Handle the Facebook callback
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     void navigateToSecondActivity() {
